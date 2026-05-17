@@ -10,13 +10,15 @@ const paginateRepositories = async (octokit: Octokit, route: string, parameters:
     per_page: 100,
     ...parameters,
   })) {
-    if (Array.isArray(response.data)) {
-      repositories.push(...response.data);
+    const data: any = response.data;
+
+    if (Array.isArray(data)) {
+      repositories.push(...data);
       continue;
     }
 
-    if ("repositories" in response.data && Array.isArray(response.data.repositories)) {
-      repositories.push(...response.data.repositories);
+    if (Array.isArray(data?.repositories)) {
+      repositories.push(...data.repositories);
     }
   }
 
