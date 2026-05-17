@@ -14,11 +14,11 @@ export default function Header() {
           height={32}
         />
         <h1 className="sm:text-4xl text-2xl font-bold ml-2 tracking-tight">
-          Github Profile Generator
+          github-sigint-priv
         </h1>
       </Link>
       <a
-        href="https://github.com/yunwei37/AI-GitHub-Profile-Generator"
+        href="https://github.com/primeinc/github-sigint-priv"
         target="_blank"
         rel="noreferrer"
       >

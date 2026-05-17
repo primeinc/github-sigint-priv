@@ -11,6 +11,7 @@
     "@headlessui/tailwindcss": "^0.1.2",
     "@heroicons/react": "^2.0.13",
     "@mdx-js/react": "^2.3.0",
+    "@octokit/auth-app": "^8.2.0",
     "@octokit/rest": "^19.0.13",
     "@tailwindcss/forms": "^0.5.3",
     "@vercel/analytics": "^0.1.11",

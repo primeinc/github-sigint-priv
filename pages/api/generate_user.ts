@@ -11,41 +11,35 @@ export const config = {
 
 
 const promptTemplateAnalyzeUser = `
-Given the information about a GitHub user represented by the variables:
+You are analyzing an authenticated GitHub inventory snapshot.
 
-- User statistics: {{userStats}}
-- User profile: {{userProfile}}
+- Inventory summary: {{inventorySummary}}
 
-Your task is to provide a detailed analysis of the user's activity and performance on GitHub. Your evaluation should include, but not be limited to, the following:
+Produce a concise SIGINT-style markdown briefing that focuses on what the accessible repository inventory says about the organization or account set.
 
-1. Make a conclusion about the user's overall activity, skill set and interests. Try to infer as much as possible from the data available.
-2. Insight into the user's coding habits, including their most frequently used languages and the frequency of their commits.
-3. An overview of their project contributions, both in terms of repositories they've created and those they've contributed to.
-4. A snapshot of their overall GitHub presence, encapsulating factors like the number of followers they have and any other significant details available from their profile and stats.
+The briefing should:
 
-For example, your analysis could highlight a user's strong focus on Python development, 
-their consistent daily commits demonstrating high engagement, 
-or their significant contributions to a high-profile open-source project.
+1. Summarize access coverage, including auth mode, owners covered, and public/private/internal repo distribution.
+2. Highlight the most important technical concentrations, especially language distribution, recently active repos, archived projects, forks, and owner-level differences.
+3. Call out operational observations such as stale areas, likely platform teams, product surfaces, or maintenance hotspots that are directly supported by the inventory.
+4. Avoid inventing data that is not present. Explicitly stay within the accessible inventory and do not speculate about hidden repositories.
 
-Please structure your analysis in a clear, comprehensible manner with titles and lists,
-highlighting key insights and patterns in the user's GitHub behavior.
-The generated Analysis should be about 300 words long, 
-contains some links to the user's GitHub profile and repositories,
-and provides a well-rounded understanding of the user's activity on GitHub.
+Format requirements:
+- Use markdown headings and bullets.
+- Keep it between 250 and 450 words.
+- Include a short "Key Risks / Gaps" section when the data suggests one.
+- Include a short "Priority Follow-ups" section for an operator or reviewer.
 `;
 
 const handler = async (req: Request): Promise<Response> => {
-  const { userStats, userProfile } = (await req.json()) as {
-    userStats?: string;
-    userProfile?: string;
+  const { inventorySummary } = (await req.json()) as {
+    inventorySummary?: string;
   };
 
-  if (!userStats || !userProfile) {
+  if (!inventorySummary) {
     return new Response("No prompt in the request", { status: 400 });
   }
-  const prompt = promptTemplateAnalyzeUser.replace
-    ("{{userStats}}", userStats)
-    .replace("{{userProfile}}", userProfile);
+  const prompt = promptTemplateAnalyzeUser.replace("{{inventorySummary}}", inventorySummary);
   console.log(prompt);
   const payload: OpenAIStreamPayload = {
     model: "gpt-3.5-turbo-16k",

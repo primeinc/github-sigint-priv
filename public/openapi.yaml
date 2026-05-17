@@ -1,223 +1,135 @@
 openapi: 3.0.1
 info:
   version: "v1"
-  title: "Github OSS Stat Plugin API"
-  description: "This is the API specification for the ChatGPT Github Stat Plugin. It provides endpoints to retrieve statistics and information for a GitHub user or a specific GitHub repository."
+  title: "github-sigint-priv API"
+  description: "Authenticated GitHub inventory collection and AI summarization."
 servers:
-  - url: "https://chat-gpt-github-stat-plugin.vercel.app"
+  - url: "http://localhost:3000"
 paths:
-  /api/github/{owner}:
+  /api/github/private-summary:
     get:
-      operationId: getGithubUser
-      summary: "Get GitHub user information"
-      description: "Retrieve statistics and information for a GitHub user."
+      operationId: getPrivateGithubSummary
+      summary: "Get an authenticated GitHub inventory summary"
+      description: "Enumerate repositories accessible to the configured user token or GitHub App installation and aggregate the resulting owner/repo metrics."
       parameters:
-        - in: path
+        - in: query
           name: owner
-          required: true
-          description: GitHub username.
+          required: false
+          description: Optional owner or organization login to scope the inventory.
           schema:
             type: string
       responses:
         "200":
-          description: "Successfully retrieved user information."
+          description: "Successfully retrieved inventory information."
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
-  /api/github/{owner}/{repo}:
-    get:
-      operationId: getGithubRepo
-      summary: "Get GitHub repository information"
-      description: "Retrieve statistics, history and information for a specific GitHub repository."
-      parameters:
-        - in: path
-          name: owner
-          required: true
-          description: GitHub username.
-          schema:
-            type: string
-        - in: path
-          name: repo
-          required: true
-          description: GitHub repository name.
-          schema:
-            type: string
-      responses:
-        "200":
-          description: "Successfully retrieved repository information."
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Repo"
+                $ref: "#/components/schemas/InventorySummary"
 components:
   schemas:
-    User:
+    InventorySummary:
       type: object
       properties:
-        html_url:
-          type: string
-          description: The HTML URL of the user's GitHub profile.
-        type:
-          type: string
-          description: The type of GitHub account.
-        name:
-          type: string
-          description: The name of the GitHub user.
-        company:
-          type: string
-          description: The company that the GitHub user is associated with.
-        blog:
-          type: string
-          description: The URL of the user's blog.
-        location:
-          type: string
-          description: The location of the GitHub user.
-        email:
-          type: string
-          nullable: true
-          description: The email of the GitHub user.
-        hireable:
-          type: boolean
-          description: Whether the user is hireable or not.
-        bio:
-          type: string
-          description: The biography of the GitHub user.
-        twitter_username:
-          type: string
-          description: The Twitter username of the GitHub user.
-        public_repos:
-          type: integer
-          description: The number of public repositories of the GitHub user.
-        public_gists:
-          type: integer
-          description: The number of public gists of the GitHub user.
-        followers:
-          type: integer
-          description: The number of followers of the GitHub user.
-        following:
-          type: integer
-          description: The number of people the GitHub user is following.
-        created_at:
+        collectedAt:
           type: string
           format: date-time
-          description: The creation date and time of the GitHub user's account.
-        updated_at:
+        authMode:
           type: string
-          format: date-time
-          description: The update date and time of the GitHub user's account.
-        totalPRs:
+          enum: [user-token, app-installation]
+        ownerFilter:
+          type: string
+        totals:
+          $ref: "#/components/schemas/Totals"
+        owners:
+          type: array
+          items:
+            $ref: "#/components/schemas/OwnerSummary"
+        repositories:
+          type: array
+          items:
+            $ref: "#/components/schemas/Repository"
+    Totals:
+      type: object
+      properties:
+        owners:
           type: integer
-          description: The total number of pull requests by the GitHub user.
-        totalCommits:
+        totalRepos:
           type: integer
-          description: The total number of commits by the GitHub user.
-        totalIssues:
+        privateRepos:
           type: integer
-          description: The total number of issues opened by the GitHub user.
-        totalStars:
+        publicRepos:
           type: integer
-          description: The total number of stars received by the GitHub user's repositories.
-        contributedTo:
+        internalRepos:
           type: integer
-          description: The number of repositories the GitHub user has contributed to.
-        rank:
-          $ref: '#/components/schemas/Rank'
-        mostStarredRepos:
+        archivedRepos:
+          type: integer
+        forkRepos:
+          type: integer
+        totalSize:
+          type: integer
+        topLanguages:
+          type: object
+          additionalProperties:
+            type: integer
+    OwnerSummary:
+      type: object
+      properties:
+        owner:
+          type: string
+        totalRepos:
+          type: integer
+        privateRepos:
+          type: integer
+        publicRepos:
+          type: integer
+        internalRepos:
+          type: integer
+        archivedRepos:
+          type: integer
+        forkRepos:
+          type: integer
+        totalSize:
+          type: integer
+        topLanguages:
+          type: object
+          additionalProperties:
+            type: integer
+        topTopics:
+          type: object
+          additionalProperties:
+            type: integer
+        defaultBranches:
+          type: object
+          additionalProperties:
+            type: integer
+        recentRepos:
           type: array
           items:
             type: string
-          description: List of the user's most starred repositories.
-
-    Rank:
+    Repository:
       type: object
       properties:
-        level:
+        fullName:
           type: string
-          description: The level of the GitHub user's rank.
-        percentile:
-          type: number
-          format: double
-          description: The percentile of the GitHub user's rank.
-    Repo:
-      type: object
-      properties:
-        name:
-          type: string
-          description: The name of the repository.
-        full_name:
-          type: string
-          description: The full name of the repository.
-        private:
-          type: boolean
-          description: Indicates if the repository is private.
         owner:
-          type: object
-          description: The owner of the repository.
-          properties:
-            login:
-              type: string
-            type:
-              type: string
-            site_admin:
-              type: boolean
-        html_url:
           type: string
-          description: The HTML URL of the repository.
-        description:
+        visibility:
           type: string
-          description: The description of the repository.
+          enum: [public, private, internal]
         fork:
           type: boolean
-          description: Indicates if the repository is a fork.
-        created_at:
+        archived:
+          type: boolean
+        defaultBranch:
           type: string
-          format: date-time
-          description: The creation time of the repository.
-        updated_at:
-          type: string
-          format: date-time
-          description: The last update time of the repository.
-        pushed_at:
-          type: string
-          format: date-time
-          description: The last push time of the repository.
-        homepage:
-          type: string
-          description: The homepage of the repository.
         size:
           type: integer
-          description: The size of the repository.
-        stargazers_count:
-          type: integer
-          description: The count of stargazers of the repository.
-        watchers_count:
-          type: integer
-          description: The count of watchers of the repository.
         language:
           type: string
-          description: The primary language of the repository.
-        has_issues:
-          type: boolean
-          description: Indicates if the repository has issues enabled.
-        has_projects:
-          type: boolean
-          description: Indicates if the repository has projects enabled.
-        has_downloads:
-          type: boolean
-          description: Indicates if the repository has downloads enabled.
-        has_wiki:
-          type: boolean
-          description: Indicates if the repository has wiki enabled.
-        has_pages:
-          type: boolean
-          description: Indicates if the repository has GitHub pages enabled.
-        has_discussions:
-          type: boolean
-          description: Indicates if the repository has discussions enabled.
-        forks_count:
-          type: integer
-          description: The count of forks of the repository.
+        topics:
+          type: array
+          items:
+            type: string
         mirror_url:
           type: string
           description: The mirror URL of the repository.
