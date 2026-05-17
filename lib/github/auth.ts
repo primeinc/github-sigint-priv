@@ -59,7 +59,7 @@ const getInstallationAccountType = (installation: any) => {
     return account.type;
   }
 
-  return "Enterprise";
+  return undefined;
 };
 
 export async function getGitHubAuthContext(ownerFilter?: string): Promise<GitHubAuthContext> {
