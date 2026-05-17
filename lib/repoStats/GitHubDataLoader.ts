@@ -1,5 +1,3 @@
-import { Octokit } from "@octokit/rest";
-
 const GITHUB_API_URL = "https://api.github.com/repos/{user}/{repo}/stargazers?per_page=100&page={page}";
 const MAX_PAGES_WITHOUT_TOKEN = 30;
 const batchSize = 5;
@@ -17,10 +15,15 @@ class GitHubDataLoader {
 
   private static storage = memoryStorage;
 
-  private async fetchStargazerPage(user: string, repo: string, page: number): Promise<any> {
-    const octokit = new Octokit({
+  private async createOctokit() {
+    const { Octokit } = await import("@octokit/rest");
+    return new Octokit({
       auth: process.env.REACT_APP_GITHUB_ACCESS_TOKEN,
     });
+  }
+
+  private async fetchStargazerPage(user: string, repo: string, page: number): Promise<any> {
+    const octokit = await this.createOctokit();
     const url = GITHUB_API_URL.replace("{page}", page.toString()).replace("{user}", user)
       .replace("{repo}", repo);
     console.log("url: " + url);

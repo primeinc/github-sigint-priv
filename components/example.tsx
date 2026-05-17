@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import 'github-markdown-css';
 
 const ExampleBioComponent = () => {
 

@@ -2,7 +2,6 @@ import React, { useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Toaster, toast } from "react-hot-toast";
 import LoadingDots from './LoadingDots';  // assuming you have a component named LoadingDots
-import 'github-markdown-css';
 
 interface MyComponentProps {
     loading: boolean;

@@ -6,7 +6,7 @@ import { useRef, useState } from "react";
 import Footer from "../components/Footer";
 import Github from "../components/GitHub";
 import Header from "../components/Header";
-import { createParser, ParsedEvent, ReconnectInterval } from "eventsource-parser";
+import { createParser } from "eventsource-parser";
 import MDview from "@/components/mdView";
 
 const exampleReports = [`
@@ -87,20 +87,19 @@ const Home: NextPage = () => {
       return;
     }
 
-    const onParse = (event: ParsedEvent | ReconnectInterval) => {
-      if (event.type === "event") {
+    const parser = createParser({
+      onEvent: (event) => {
         try {
           const text = JSON.parse(event.data).text ?? "";
           setGenerated((previous) => previous + text);
         } catch (error) {
           console.error(error);
         }
-      }
-    };
+      },
+    });
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    const parser = createParser(onParse);
     let done = false;
 
     while (!done) {
